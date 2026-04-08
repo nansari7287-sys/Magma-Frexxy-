@@ -1,4 +1,4 @@
 pyTelegramBotAPI
+aiohttp
+flask
 requests
-urllib3
-Flask
