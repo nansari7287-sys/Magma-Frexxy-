@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FREXXY OSINT PRO</title>
+    <style>
+        body { 
+            background-color: #000000; 
+            color: #00ff00; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 11px; /* Screen me fit karne ke liye perfect size */
+            font-weight: bold; 
+            margin: 0; 
+            padding: 5px; 
+        }
+        #terminal { 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            padding-bottom: 15px; 
+            line-height: 1.3; /* Spacing kam kar di */
+        }
+        .input-line { display: flex; align-items: center; margin-top: 2px;}
+        #prompt { color: #00ffff; margin-right: 5px; font-weight: bold; }
+        #cmd { background: transparent; border: none; color: #ffff00; font-family: monospace; font-size: 13px; font-weight: bold; outline: none; flex-grow: 1; width: 100%; }
+        
+        /* Hacker Theme Colors */
+        .g { color: #00ff00; } 
+        .c { color: #00ffff; } 
+        .y { color: #ffff00; } 
+        .w { color: #ffffff; } 
+        .r { color: #ff0000; } 
+        .d { color: #666666; } 
+        
+        /* FREXXY Banner */
+        .ascii-banner { 
+            font-size: 7px; 
+            line-height: 1; 
+            white-space: pre; 
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal"></div>
+    <div class="input-line">
+        <span id="prompt" class="g">root@FREXXY:~#</span>
+        <input type="text" id="cmd" autocomplete="off" spellcheck="false" autofocus>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const cmdInput = document.getElementById('cmd');
+        const promptLabel = document.getElementById('prompt');
+
+        let currentState = "MENU";
+        let selectedApi = null;
+        let animationInterval = null;
+        
+        // 🔒 ADMIN PASSWORD 🔒
+        const ADMIN_PASSWORD = "FREXXYBOSS"; 
+
+        const DEFAULT_APIS = {
+            '1': {name: "Number Info", url: "https://database-sigma-nine.vercel.app/number/{}?api_key=YOUR-PASSWORD"},
+            '2': {name: "V2 Number DB", url: "https://your-v2num-api.com/api?num={}"},
+            '3': {name: "Family Details", url: "https://number8899.vercel.app/?type=family&aadhar={}"},
+            '4': {name: "Aadhar Details", url: "https://num-info-paid.vercel.app/?num={}&key=ERROR"},
+            '5': {name: "Vehicle RC", url: "https://vehicleinfobyterabaap.vercel.app/lookup?rc={}"},
+            '6': {name: "Pak Database", url: "https://pkmkb.free.nf/api.php?number={}"},
+            '7': {name: "Telegram Info", url: "https://tele-id-t0-num.rasiksarkarrasiksarkar.workers.dev/?key=fuckk&chat_id={}"},
+            '8': {name: "Instagram Info", url: "https://insta-profile-info-api.vercel.app/api/instagram.php?username={}"},
+            '9': {name: "Gmail OSINT", url: "https://gmail-osint.vercel.app/api?email={}"},
+            '10': {name: "Free Fire Info", url: "https://abbas-apis.vercel.app/api/ff-info?uid={}"},
+            '11': {name: "Area Pincode", url: "https://paid.proportalxc.workers.dev/pincode?key=1kSubscriber&pincode={}"},
+            '12': {name: "IP Tracker", url: "https://abbas-apis.vercel.app/api/ip?ip={}"},
+            '13': {name: "Bank IFSC", url: "https://ifsc.razorpay.com/{}"},
+            '14': {name: "Card BIN", url: "https://data.handyapi.com/bin/{}"}
+        };
+
+        function getApis() {
+            let saved = localStorage.getItem('userApis');
+            return saved ? JSON.parse(saved) : DEFAULT_APIS;
+        }
+
+        const banner = `<div class="ascii-banner">
+███████╗██████╗ ███████╗██╗  ██╗██╗  ██╗██╗   ██╗
+██╔════╝██╔══██╗██╔════╝╚██╗██╔╝╚██╗██╔╝╚██╗ ██╔╝
+█████╗  ██████╔╝█████╗   ╚███╔╝  ╚███╔╝  ╚████╔╝ 
+██╔══╝  ██╔══██╗██╔══╝   ██╔██╗  ██╔██╗   ╚██╔╝  
+██║     ██║  ██║███████╗██╔╝ ██╗██╔╝ ██╗   ██║   
+╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝</div>
+<span class="d">─────────────────────────────────────────────────</span>
+ <span class="c">License:</span> <span class="w">Lifetime VIP</span>   <span class="c">Auth:</span> <span class="g">FREXXY ROOT</span>
+<span class="d">─────────────────────────────────────────────────</span>
+
+<span class="y">▼▼ [ 📱 COMMUNICATION & ID ] ▼▼</span>
+ <span class="c">[01]</span> <span class="w">Number Info      </span> <span class="c">[02]</span> <span class="w">V2 Number DB</span>
+ <span class="c">[03]</span> <span class="w">Family Details   </span> <span class="c">[04]</span> <span class="w">Aadhar Details</span>
+ <span class="c">[05]</span> <span class="w">Vehicle RC       </span> <span class="c">[06]</span> <span class="w">Pak Database</span>
+
+<span class="y">▼▼ [ 💻 SOCIAL & GAMING ] ▼▼</span>
+ <span class="c">[07]</span> <span class="w">Telegram Info    </span> <span class="c">[08]</span> <span class="w">Instagram Info</span>
+ <span class="c">[09]</span> <span class="w">Gmail OSINT      </span> <span class="c">[10]</span> <span class="w">Free Fire Info</span>
+
+<span class="y">▼▼ [ 🏦 FINANCE & NETWORK ] ▼▼</span>
+ <span class="c">[11]</span> <span class="w">Area Pincode     </span> <span class="c">[12]</span> <span class="w">IP Tracker</span>
+ <span class="c">[13]</span> <span class="w">Bank IFSC        </span> <span class="c">[14]</span> <span class="w">Card BIN</span>
+<span class="d">─────────────────────────────────────────────────</span>
+<span class="c">[0]</span> <span class="w">DISCONNECT SECURE SESSION</span>
+`;
+
+        function printLog(htmlText) { 
+            terminal.innerHTML += htmlText + "\n"; 
+            window.scrollTo(0, document.body.scrollHeight); 
+        }
+        
+        function showMenu() { 
+            terminal.innerHTML = ""; 
+            printLog(banner); 
+            promptLabel.innerHTML = '<span class="g">root@FREXXY:~#</span>'; 
+            cmdInput.type = "text"; 
+            cmdInput.disabled = false;
+            currentState = "MENU"; 
+        }
+
+        // Python dictionary cleaner
+        function extractPureJSON(text) {
+            try {
+                let startDict = text.indexOf('{');
+                let startList = text.indexOf('[');
+                let startIndex = -1;
+                
+                if(startDict !== -1 && startList !== -1) startIndex = Math.min(startDict, startList);
+                else if (startDict !== -1) startIndex = startDict;
+                else if (startList !== -1) startIndex = startList;
+
+                if(startIndex !== -1) {
+                    let endDict = text.lastIndexOf('}');
+                    let endList = text.lastIndexOf(']');
+                    let endIndex = Math.max(endDict, endList);
+                    
+                    if(endIndex > startIndex) {
+                        let jsonStr = text.substring(startIndex, endIndex + 1);
+                        jsonStr = jsonStr.replace(/'/g, '"');
+                        jsonStr = jsonStr.replace(/True/g, 'true').replace(/False/g, 'false').replace(/None/g, 'null');
+                        jsonStr = jsonStr.replace(/,\s*([\]}])/g, '$1'); 
+                        return JSON.parse(jsonStr);
+                    }
+                }
+            } catch (e) { }
+            return null;
+        }
+
+        // Perfect Alignment Engine
+        function formatHackerData(data) {
+            let ordered_keys = ["registrationnumber", "registrationdate", "validtill", "name", "fathername", "ownertypecode", "mobilenumber", "mobile", "address", "city", "pincode", "email", "id", "circle", "alt"];
+            
+            if (data.results && Array.isArray(data.results)) { data = data.results; }
+            if (data.data) { data = data.data; }
+            if (data.result) { data = data.result; }
+            
+            function flatten(item, depth = 0) {
+                let out = "";
+                let space = "  ".repeat(depth);
+
+                if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
+                    for (let key of ordered_keys) {
+                        let actual_key = Object.keys(item).find(k => k.toLowerCase() === key);
+                        if (actual_key && item[actual_key] !== "" && item[actual_key] !== null) {
+                            out += `${space}  <span class="c">${actual_key.toUpperCase().padEnd(20)}</span><span class="w">:</span> <span class="g">${item[actual_key]}</span>\n`;
+                        }
+                    }
+                    for (let [k, v] of Object.entries(item)) {
+                        let kl = k.toLowerCase();
+                        if (ordered_keys.includes(kl) || ['status', 'count', 'search time', 'success', 'error', 'developer', 'message', 'cache', 'credit'].includes(kl)) continue;
+                        
+                        if (typeof v === 'object' && v !== null && Object.keys(v).length > 0) {
+                            out += `\n${space}<span class="y">▼▼ [ ${k.toUpperCase()} ] ▼▼</span>\n` + flatten(v, depth + 1);
+                        } else if (v !== null && v !== "" && v !== " ") {
+                            out += `${space}  <span class="c">${k.toUpperCase().padEnd(20)}</span><span class="w">:</span> <span class="g">${v}</span>\n`;
+                        }
+                    }
+                } else if (Array.isArray(item)) {
+                    item.forEach((val, i) => {
+                        out += `\n${space}<span class="y">▼▼ [ RECORD ${i + 1} ] ▼▼</span>\n` + flatten(val, depth);
+                    });
+                } else {
+                    out += `${space}  <span class="g">>> ${item}</span>\n`;
+                }
+                return out;
+            }
+            return flatten(data);
+        }
+
+        // Multi-Proxy Engine for Guaranteed Connection
+        async function fetchOSINT(target) {
+            let apis = getApis();
+            const apiData = apis[selectedApi];
+            const targetUrl = apiData.url.replace("{}", target);
+            
+            printLog(`\n<span class="y">⚡ INITIATING ${apiData.name.toUpperCase()} ⚡</span>`);
+            printLog(`<span class="c">Target Input</span> <span class="w">»</span> <span class="g">${target}</span>`);
+            printLog(`<span class="d">─────────────────────────────────────────────────</span>`);
+            
+            let loaderId = "loader_" + Date.now();
+            terminal.innerHTML += `<div id="${loaderId}"><span class="y">[⠋] Connecting to Server...</span></div>`;
+            let loaderDiv = document.getElementById(loaderId);
+            
+            let rawText = "";
+            let fetchSuccess = false;
+
+            // Proxies list to cycle through if one blocks
+            const fetchMethods = [
+                targetUrl, // Try direct first
+                "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl),
+                "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(targetUrl)
+            ];
+
+            for (let i = 0; i < fetchMethods.length; i++) {
+                loaderDiv.innerHTML = `<span class="y">[⠋] Connecting to Server (Node ${i+1})...</span>`;
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 seconds wait per node
+                    
+                    const response = await fetch(fetchMethods[i], { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    
+                    if(response.ok) {
+                        let text = await response.text();
+                        if (text.trim() !== "" && !text.includes("<html")) { // ensure it's not a block page
+                            rawText = text;
+                            fetchSuccess = true;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    // Ignore error and try next proxy
+                }
+            }
+
+            if (!fetchSuccess || rawText === "") {
+                loaderDiv.innerHTML = '<span class="r">[✖] ERROR: API SERVER DOWN OR TARGET BLOCKED</span>';
+                printLog('<span class="c">▶ Press ENTER to return...</span>');
+                promptLabel.innerHTML = ''; cmdInput.disabled = false; cmdInput.focus(); currentState = "WAIT_ENTER";
+                return;
+            }
+            
+            loaderDiv.innerHTML = '<span class="g">[✓] Extracting Data from Mainframe... COMPLETED!</span>\n';
+            
+            let jsonData = extractPureJSON(rawText);
+            
+            if (jsonData) {
+                if(!jsonData.results && !jsonData.data && selectedApi == '5') {
+                    printLog('<span class="y">▼▼ [ VEHICLE DETAILS ] ▼▼</span>');
+                } else if (!jsonData.results && !jsonData.data) {
+                    printLog('<span class="y">▼▼ [ ' + apiData.name.toUpperCase() + ' ] ▼▼</span>');
+                }
+                
+                let formattedOutput = formatHackerData(jsonData);
+                if (formattedOutput.trim() === "") {
+                    printLog('<span class="r">❌ ERROR: RECORD NOT FOUND IN DATABASE.</span>');
+                } else {
+                    printLog(formattedOutput);
+                }
+            } else {
+                printLog('<span class="r">❌ ERROR: INVALID DATA RECEIVED FROM API.</span>');
+            }
+
+            printLog('\n<span class="d">─────────────────────────────────────────────────</span>');
+            printLog('<span class="c">▶ Press ENTER to clear logs and return...</span>');
+            
+            promptLabel.innerHTML = ''; 
+            cmdInput.disabled = false;
+            cmdInput.focus();
+            currentState = "WAIT_ENTER";
+        }
+
+        cmdInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                const val = cmdInput.value.trim();
+                cmdInput.value = "";
+                
+                if (currentState === "MENU") {
+                    if (val === "99") { 
+                        printLog('root@FREXXY:~# 99\n<span class="r">🔒 ENTER ADMIN PASSWORD:</span>'); 
+                        promptLabel.innerHTML = '<span class="c">Password »</span>'; 
+                        cmdInput.type = "password"; 
+                        currentState = "CHECK_PASSWORD"; 
+                    }
+                    else if (val === "0") {
+                        printLog('root@FREXXY:~# 0');
+                        printLog('<span class="r">Destroying encrypted tunnel... Goodbye FREXXY!</span>');
+                        promptLabel.innerHTML = '';
+                        cmdInput.disabled = true;
+                    }
+                    else if (getApis()[val]) { 
+                        selectedApi = val; 
+                        printLog('root@FREXXY:~# ' + val); 
+                        promptLabel.innerHTML = '<span class="c">Target Input »</span>'; 
+                        currentState = "INPUT_TARGET"; 
+                    }
+                } 
+                else if (currentState === "CHECK_PASSWORD") {
+                    cmdInput.type = "text"; 
+                    if (val === ADMIN_PASSWORD) {
+                        currentState = "ADMIN_MENU"; 
+                        terminal.innerHTML = "<span class='y'>▼▼ [ ⚙️ SECURE ADMIN PANEL ] ▼▼</span>\n\n"; 
+                        let apis = getApis(); 
+                        for(let k in apis) printLog('<span class="c">[' + k.padStart(2, '0') + ']</span> <span class="g">' + apis[k].name + '</span>'); 
+                        printLog("\n<span class='w'>Enter ID to update (or 0 to exit):</span>"); 
+                        promptLabel.innerHTML = '<span class="g">Admin Input »</span>';
+                    } else {
+                        printLog('<span class="r">❌ ACCESS DENIED! INCORRECT PASSWORD.</span>');
+                        printLog('<span class="c">▶ Press ENTER to return...</span>');
+                        promptLabel.innerHTML = '';
+                        currentState = "WAIT_ENTER";
+                    }
+                }
+                else if (currentState === "ADMIN_MENU") {
+                    if (val === "0") { showMenu(); }
+                    else if (getApis()[val]) { 
+                        selectedApi = val; 
+                        printLog('<span class="y">Updating: ' + getApis()[val].name + '</span>');
+                        promptLabel.innerHTML = '<span class="c">New URL »</span>'; 
+                        currentState = "UPDATE_URL"; 
+                    }
+                }
+                else if (currentState === "UPDATE_URL") {
+                    if (val.includes("{}")) {
+                        let apis = getApis(); 
+                        apis[selectedApi].url = val; 
+                        localStorage.setItem('userApis', JSON.stringify(apis)); 
+                        printLog("<span class='g'>✓ API Updated Successfully!</span>"); 
+                    } else {
+                        printLog("<span class='r'>❌ Error: URL must contain {}</span>");
+                    }
+                    printLog('<span class="c">▶ Press ENTER to return...</span>');
+                    promptLabel.innerHTML = '';
+                    currentState = "WAIT_ENTER";
+                }
+                else if (currentState === "INPUT_TARGET") { 
+                    if(val !== "") {
+                        promptLabel.innerHTML = ''; 
+                        cmdInput.disabled = true;   
+                        fetchOSINT(val); 
+                    }
+                }
+                else if (currentState === "WAIT_ENTER") { 
+                    showMenu(); 
+                }
+            }
+        });
+        
+        document.body.addEventListener("click", () => {
+            if(!cmdInput.disabled) cmdInput.focus();
+        });
+        
+        showMenu();
+    </script>
+</body>
+</html>
